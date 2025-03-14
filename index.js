@@ -1,3 +1,6 @@
+const ffmpeg = require('@ffmpeg-installer/ffmpeg');
+process.env.FFMPEG_PATH = ffmpeg.path;
+
 if (!process.env.TOKEN || !process.env.PREFIX) {
     console.error("❌ Thiếu biến môi trường. Vui lòng kiểm tra lại trên Railway.");
     process.exit(1); // Ngăn chặn bot chạy nếu thiếu token
