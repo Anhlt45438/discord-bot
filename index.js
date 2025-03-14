@@ -1,18 +1,7 @@
+// chỉ dùng dotenv khi chạy local
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
-
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.get('/', (req, res) => {
-    res.send('Bot Discord đang chạy!');
-});
-
-app.listen(PORT, () => {
-    console.log(`🚀 Server chạy tại cổng ${PORT}`);
-});
 
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, getVoiceConnection } = require('@discordjs/voice');
