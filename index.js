@@ -1,13 +1,18 @@
+if (!process.env.TOKEN || !process.env.PREFIX) {
+    console.error("❌ Thiếu biến môi trường. Vui lòng kiểm tra lại trên Railway.");
+    process.exit(1); // Ngăn chặn bot chạy nếu thiếu token
+}
+
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 }
 
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080; // Chỉnh sửa PORT để phù hợp với Railway
 
 app.get('/', (req, res) => res.send('Discord Bot đang chạy!'));
-app.listen(PORT, () => console.log(`🚀 Server chạy tại cổng ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Server chạy tại cổng ${PORT}`));
 
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { createAudioPlayer, createAudioResource, getVoiceConnection } = require('@discordjs/voice');
@@ -37,6 +42,14 @@ client.once('ready', () => {
     console.log(`✅ Bot đã online: ${client.user.tag}`);
 });
 
+// Bắt lỗi để tránh bot bị crash
+client.on('error', error => {
+    console.error("⚠️ Lỗi Discord Client:", error);
+});
+client.on('shardError', error => {
+    console.error("⚠️ Lỗi Shard:", error);
+});
+
 client.on('messageCreate', async message => {
     if (message.author.bot) return;
 
@@ -63,10 +76,15 @@ client.on('messageCreate', async message => {
                 player.play(resource);
                 connection.subscribe(player);
             } catch (error) {
-                console.error(error);
+                console.error("❌ Lỗi khi tạo audio từ Google TTS:", error);
             }
         }
     }
 });
 
-client.login(process.env.TOKEN);
+try {
+    client.login(process.env.TOKEN);
+} catch (error) {
+    console.error("❌ Lỗi khi đăng nhập bot:", error);
+    process.exit(1);
+}

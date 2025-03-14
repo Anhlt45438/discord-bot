@@ -22,7 +22,7 @@ module.exports = {
 
             message.reply(`🎶 Đang phát nhạc: ${url}`);
         } catch (error) {
-            console.error(error);
+            console.error("❌ Lỗi khi phát nhạc:", error);
             message.reply('❌ Không thể phát nhạc.');
         }
     }
