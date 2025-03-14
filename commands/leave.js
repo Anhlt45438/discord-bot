@@ -2,14 +2,15 @@ const { getVoiceConnection } = require('@discordjs/voice');
 
 module.exports = {
     name: 'leave',
-    description: 'Bot thoát khỏi voice.',
-    execute(message) {
+    description: 'Rời khỏi voice.',
+    execute(message, args, player, client, getAutoRead, setAutoRead) {
         const connection = getVoiceConnection(message.guild.id);
         if (connection) {
             connection.destroy();
-            message.reply('👋 Đã rời khỏi kênh thoại.');
+            setAutoRead(false); // Tắt auto đọc khi rời khỏi voice
+            message.reply('👋 Đã thoát khỏi voice.');
         } else {
-            message.reply('❌ Bot hiện không ở trong voice.');
+            message.reply('❌ Bot chưa vào voice.');
         }
     }
 };

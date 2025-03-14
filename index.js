@@ -6,16 +6,11 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-    res.send('Bot Discord đang chạy!');
-});
-
-app.listen(PORT, () => {
-    console.log(`🚀 Server chạy tại cổng ${PORT}`);
-});
+app.get('/', (req, res) => res.send('Discord Bot đang chạy!'));
+app.listen(PORT, () => console.log(`🚀 Server chạy tại cổng ${PORT}`));
 
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, getVoiceConnection } = require('@discordjs/voice');
+const { createAudioPlayer, createAudioResource, getVoiceConnection } = require('@discordjs/voice');
 const { getAudioUrl } = require('google-tts-api');
 const fs = require('fs');
 
@@ -30,12 +25,13 @@ const client = new Client({
 
 client.commands = new Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-for (const file of commandFiles) {
+commandFiles.forEach(file => {
     const command = require(`./commands/${file}`);
     client.commands.set(command.name, command);
-}
+});
 
 const player = createAudioPlayer();
+let autoRead = false;  // mặc định tắt auto đọc tin nhắn
 
 client.once('ready', () => {
     console.log(`✅ Bot đã online: ${client.user.tag}`);
@@ -50,16 +46,16 @@ client.on('messageCreate', async message => {
         if (!client.commands.has(command)) return;
 
         try {
-            client.commands.get(command).execute(message, args, player);
+            client.commands.get(command).execute(message, args, player, client, () => autoRead, (val) => autoRead = val);
         } catch (error) {
             console.error(error);
             message.reply('❌ Có lỗi khi thực hiện lệnh này!');
         }
-    } else {
+    } else if (autoRead) {
         const connection = getVoiceConnection(message.guild.id);
         if (connection) {
-            const cleanText = message.content.replace(/<@!?(\d+)>|<:[^:]+:\d+>|:[^:\s]*(?:::[^:\s]*)*:|https?:\/\/\S+|\n/g, '').trim();
-            if (cleanText.length === 0) return;
+            const cleanText = message.content.replace(/<@!?(\d+)>|<a?:.+?:\d+>|:[^:\s]*(?:::[^:\s]*)*:|https?:\/\/\S+|\n|\d+/g, '').trim();
+            if (!cleanText) return;
 
             try {
                 const url = getAudioUrl(cleanText, { lang: 'vi', slow: false, host: 'https://translate.google.com' });
