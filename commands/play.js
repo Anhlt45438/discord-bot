@@ -1,9 +1,9 @@
-const { joinVoiceChannel, createAudioResource, AudioPlayerStatus } = require('@discordjs/voice');
+const { joinVoiceChannel, createAudioResource } = require('@discordjs/voice');
 const playdl = require('play-dl');
 
 module.exports = {
     name: 'play',
-    description: 'Phát nhạc từ YouTube.',
+    description: 'Phát nhạc YouTube.',
     async execute(message, args, player) {
         const voiceChannel = message.member.voice.channel;
         if (!voiceChannel) return message.reply('❌ Hãy vào voice trước!');
@@ -23,10 +23,6 @@ module.exports = {
 
             player.play(resource);
             connection.subscribe(player);
-
-            player.on(AudioPlayerStatus.Idle, () => {
-                // Nhạc kết thúc không tự động ngắt kết nối nữa để có thể tiếp tục đọc tin nhắn
-            });
 
             message.reply(`🎶 Đang phát: ${url}`);
         } catch (error) {

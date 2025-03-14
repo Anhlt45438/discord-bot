@@ -1,4 +1,8 @@
-require('dotenv').config();
+// chỉ dùng dotenv khi chạy local
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
+
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, getVoiceConnection } = require('@discordjs/voice');
 const { getAudioUrl } = require('google-tts-api');
@@ -41,7 +45,6 @@ client.on('messageCreate', async message => {
             message.reply('❌ Có lỗi khi thực hiện lệnh này!');
         }
     } else {
-        // Tự động đọc tin nhắn nếu bot đang ở trong voice
         const connection = getVoiceConnection(message.guild.id);
         if (connection) {
             const cleanText = message.content.replace(/<@!?(\d+)>|<:[^:]+:\d+>|:[^:\s]*(?:::[^:\s]*)*:|https?:\/\/\S+|\n/g, '').trim();
